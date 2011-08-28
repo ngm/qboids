@@ -67,8 +67,6 @@ private:
 	void initialiseBoids();
     void setupLandscape();
     void setupTime();
-    int getRandomLandscapeX();
-    int getRandomLandscapeY();
     void updateFlock1(int xmin, int xmax, int ymin, int ymax);
     void updateFlock2(int xmin, int xmax, int ymin, int ymax);
 	
