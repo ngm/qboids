@@ -126,21 +126,24 @@ void MainWindow::updateBoids()
     int ymax = landscapeView_->viewport()->height();
 
     // TODO: obviously refactor into method...
-    updateFlock1(xmin, xmax, ymin, ymax);
-    updateFlock2(xmin, xmax, ymin, ymax);
+    updateFlock(xmin, xmax, ymin, ymax, flock1, flock2, 0);
+    updateFlock(xmin, xmax, ymin, ymax, flock2, flock1, 200);
 
     landscapeScene_->update();
 }
 
-void MainWindow::updateFlock1(int xmin, int xmax, int ymin, int ymax)
+void MainWindow::updateFlock(
+        int xmin, int xmax, int ymin, int ymax,
+        QVector<Boid*> &flock, QVector<Boid*> &flockToAvoid,
+        int ticksOffset)
 {
-    foreach ( Boid *boid, flock1 )
+    foreach ( Boid *boid, flock )
     {
-        QPointF v1 = moveWeight_ * moveTowardsCentre( boid, flock1 );
-        QPointF v2 = avoidWeight_ * avoidObjects( boid, flock1 );
-        QPointF v3 = matchWeight_ * matchVelocity( boid, flock1 );
+        QPointF v1 = moveWeight_ * moveTowardsCentre( boid, flock );
+        QPointF v2 = avoidWeight_ * avoidObjects( boid, flock );
+        QPointF v3 = matchWeight_ * matchVelocity( boid, flock );
 
-        QPointF v4 = avoidWeight_ * avoidOtherFlock( boid, flock2 );
+        QPointF v4 = avoidWeight_ * avoidOtherFlock( boid, flockToAvoid );
 
         boid->setVelocity( (boid->velocity() + v1 + v2 + v3 + v4 ) );
         boundBoid( boid, xmin, xmax, ymin, ymax );
@@ -148,29 +151,7 @@ void MainWindow::updateFlock1(int xmin, int xmax, int ymin, int ymax)
         boid->limitVelocity();
 
         boid->setPos( boid->pos() + boid->velocity() );
-        boid->setMsSinceStart( ticksSinceStart_ );
-        
-        boid->addToTrail( boid->x(), boid->y() );
-    }
-}
-
-void MainWindow::updateFlock2(int xmin, int xmax, int ymin, int ymax)
-{
-    foreach ( Boid *boid, flock2 )
-    {
-        QPointF v1 = moveWeight_ * moveTowardsCentre( boid, flock2 );
-        QPointF v2 = avoidWeight_ * avoidObjects( boid, flock2 );
-        QPointF v3 = matchWeight_ * matchVelocity( boid, flock2 );
-
-        QPointF v4 = avoidWeight_ * avoidOtherFlock( boid, flock1 );
-
-        boid->setVelocity( (boid->velocity() + v1 + v2 + v3 + v4 ) );
-        boundBoid( boid, xmin, xmax, ymin, ymax );
-
-        boid->limitVelocity();
-
-        boid->setPos( boid->pos() + boid->velocity() );
-        boid->setMsSinceStart( ticksSinceStart_+200 );
+        boid->setMsSinceStart( ticksSinceStart_ + ticksOffset);
         
         boid->addToTrail( boid->x(), boid->y() );
     }
