@@ -34,6 +34,7 @@ public:
     void addBoid2( );
     void removeBoid2( );
     void toggleTails();
+    int ticksSinceStart();
 
     Flock *flock1;
     Flock *flock2;
@@ -53,16 +54,7 @@ private:
     void initialiseFlock(Flock *flock);
     void setupLandscape();
     void setupTime();
-    void updateFlock(Flock *flock, Flock *flockToAvoid, int ticksOffset);
     
-    void boundBoid(Boid *boid);
-    QPointF moveTowardsCentre(Boid *boid, Flock *flock);
-    QPointF avoidObjects(Boid *boid, Flock *flock);
-    QPointF avoidOtherFlock(Boid *boid, Flock *flock);
-    QPointF matchVelocity( Boid *boid, Flock *flock);
-
-    float distanceBetween(Boid *boid1, Boid *boid2);
-
     QTimer *timer_;
 
     QMenu *fileMenu_;
