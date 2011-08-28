@@ -23,6 +23,12 @@ class Flock {
         void addBoid(Boid *boid);
         void removeBoid();
         void updateBoids(Flock *flockToAvoid, int ticksOffset);
+        QPointF centreOfFlock();
+
+        void setMoveWeight(int newWeight);
+        void setMatchWeight(int newWeight);
+        void setAvoidWeight(int newWeight);
+        void setTargetWeight(int newWeight);
 
 
     private:

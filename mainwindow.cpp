@@ -3,6 +3,9 @@
  *
  * Visual art based on Craig Reynolds' boids algorithm
  * (www.red3d.com/cwr/boids/)
+ *
+ * Algorithms based on the pseudocode at:
+ * http://www.vergenet.net/~conrad/boids/pseudocode.html
  */
 
 #include <QGraphicsScene>
@@ -202,26 +205,47 @@ void MainWindow::togglePause()
 
 void MainWindow::toggleScatter()
 {
-    if ( moveWeight_ == 1 )
+    if (moveWeight_ == 1)
+    {
         moveWeight_ = -5;
+    }
     else 
+    {
         moveWeight_ = 1;
+    }
+
+    flock1->setMoveWeight(moveWeight_);
+    flock2->setMoveWeight(moveWeight_);
 }
 
 void MainWindow::toggleAvoid()
 {
-    if ( avoidWeight_ == 1 )
+    if (avoidWeight_ == 1)
+    {
         avoidWeight_ = -1;
+    }
     else 
+    {
         avoidWeight_ = 1;
+    }
+
+    flock1->setAvoidWeight(avoidWeight_);
+    flock2->setAvoidWeight(avoidWeight_);
 }
 
 void MainWindow::toggleMatch()
 {
-    if ( matchWeight_ == 1 )
+    if (matchWeight_ == 1)
+    {
         matchWeight_ = -1;
+    }
     else 
+    {
         matchWeight_ = 1;
+    }
+
+    flock1->setMatchWeight(matchWeight_);
+    flock2->setMatchWeight(matchWeight_);
 }
 
 void MainWindow::toggleTails()

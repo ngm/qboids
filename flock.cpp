@@ -98,24 +98,22 @@ void Flock::updateBoids(Flock *flockToAvoid, int ticksOffset)
 }
 
 
-/**
- * Algorithm based on the pseudocode at:
- * http://www.vergenet.net/~conrad/boids/pseudocode.html
- */
 QPointF Flock::moveTowardsCentre(Boid *thisBoid)
+{
+    return (centreOfFlock() - thisBoid->pos()) / 100;
+}
+
+
+QPointF Flock::centreOfFlock()
 {
     QPointF flockCentre(0, 0);
 
     foreach (Boid *boid, boids)
     {
-        if (boid != thisBoid)
-        {
-            flockCentre += boid->pos();
-        }
+        flockCentre += boid->pos();
     }
-    flockCentre /= (numberOfBoids() - 1);
-
-    return (flockCentre - thisBoid->pos()) / 100;
+    
+    return flockCentre /= (numberOfBoids());
 }
 
 
@@ -233,3 +231,26 @@ void Flock::boundBoid(Boid *boid)
     }
 }
 
+
+void Flock::setMoveWeight(int newWeight)
+{
+    moveWeight_ = newWeight;
+}
+
+
+void Flock::setMatchWeight(int newWeight)
+{
+    matchWeight_ = newWeight;
+}
+
+
+void Flock::setAvoidWeight(int newWeight)
+{
+    avoidWeight_ = newWeight;
+}
+
+
+void Flock::setTargetWeight(int newWeight)
+{
+    targetWeight_ = newWeight;
+}
