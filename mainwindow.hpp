@@ -50,8 +50,8 @@ public:
 	void removeBoid2( );
 	void toggleTails();
 
-	QVector<Boid*> boids;
-	QVector<Boid*> boids2;
+	QVector<Boid*> flock1;
+	QVector<Boid*> flock2;
 
 public slots:
 	void updateBoids();
@@ -65,6 +65,12 @@ private:
 	LandscapeScene *landscapeScene_;
 
 	void initialiseBoids();
+    void setupLandscape();
+    void setupTime();
+    int getRandomLandscapeX();
+    int getRandomLandscapeY();
+    void updateFlock1(int xmin, int xmax, int ymin, int ymax);
+    void updateFlock2(int xmin, int xmax, int ymin, int ymax);
 	
 	void boundBoid( Boid *boid, int xmin, int xmax, int ymin, int ymax );
 	QPointF moveTowardsCentre( Boid *boid, QVector<Boid*> flock );
@@ -82,14 +88,14 @@ private:
 	QAction *quitAct_;
 	QAction *pauseAct_;
 
-	bool bTails_;
+	bool showTails_;
 
 	int moveWeight_;
 	int matchWeight_;
 	int avoidWeight_;
 	int targetWeight_;
 
-	int msSinceStart_;
+	int ticksSinceStart_;
 
 	
 };

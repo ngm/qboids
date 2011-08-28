@@ -19,19 +19,28 @@
 
 #include "mainwindow.hpp"
 
-namespace {
-	int INITIAL_NUM_BOIDS = 4;
-}
+int INITIAL_NUM_BOIDS = 4;
 
 MainWindow::MainWindow()
-	: bTails_( true ),
+	: showTails( true ),
 	  moveWeight_( 1 ),
 	  matchWeight_( 1 ),
 	  avoidWeight_( 1 )
 {
 	qsrand( 20 );
 	setGeometry( 0, 0, 500, 300 );
+    setupLandscape();
 
+	createActions();
+	createMenus();
+
+	initialiseBoids();
+
+    setupTime();
+}
+
+void MainWindow::setupLandscape()
+{
 	landscapeView_ = new Landscape( this );
 	landscapeView_->setGeometry( 0, 0, 500, 300 );
 
@@ -44,18 +53,15 @@ MainWindow::MainWindow()
 				      landscapeView_->viewport()->height() );
 
 	setCentralWidget( landscapeView_ );
+}
 
-	createActions();
-	createMenus();
 
-	initialiseBoids();
-
-	timer_ = new QTimer( this );
-	connect( timer_, SIGNAL(timeout()), this, SLOT(updateBoids()) );
-	timer_->start( 10 );
-
-	msSinceStart_ = 0;
-
+void MainWindow::setupTime()
+{
+    timer_ = new QTimer( this );
+    connect( timer_, SIGNAL(timeout()), this, SLOT(updateBoids()) );
+    timer_->start( 10 );
+    ticksSinceStart_ = 0;
 }
 
 MainWindow::~MainWindow()
@@ -89,75 +95,97 @@ void MainWindow::createMenus()
 
 void MainWindow::initialiseBoids()
 {
-	for ( int ii = 0; ii < INITIAL_NUM_BOIDS; ii++ ) 
+	for ( int boidCount = 0; boidCount < INITIAL_NUM_BOIDS; boidCount++ ) 
 	{
-		int x = landscapeView_->width()/2 + qrand()%20-20;
-		int y = landscapeView_->height()/2 + qrand()%20-20;
+		int x = getRandomLandscapeX();
+		int y = getRandomLandscapeY();
 
-		Boid *boid = new Boid( ii, x, y );
-		boids.push_back( boid );
+		Boid *boid = new Boid( boidCount, x, y );
+		flock1.push_back( boid );
 		landscapeScene_->addItem( boid );
 	}
 
-	for ( int ii = 0; ii < INITIAL_NUM_BOIDS; ii++ ) 
+	for ( int boidCount = 0; boidCount < INITIAL_NUM_BOIDS; boidCount++ ) 
 	{
-		int x = landscapeView_->width() + qrand()%20-20;
-		int y = landscapeView_->height() + qrand()%20-20;
+		int x = getRandomLandscapeX();
+		int y = getRandomLandscapeY();
 
-		Boid *boid = new Boid( ii, x, y );
-		boids2.push_back( boid );
+		Boid *boid = new Boid( boidCount, x, y );
+		flock2.push_back( boid );
 		landscapeScene_->addItem( boid );
 	}
 }
 
+int MainWindow::getRandomLandscapeX()
+{
+    return landscapeView_->width()/2 + qrand()%20-20;
+}
+
+int MainWindow::getRandomLandscapeY()
+{
+    return landscapeView_->height()/2 + qrand()%20-20;
+}
+
 void MainWindow::updateBoids()
 {
-	msSinceStart_++;
+	ticksSinceStart_++;
 
 	int xmin = 0;
 	int xmax = landscapeView_->viewport()->width();
 	int ymin = 0;
 	int ymax = landscapeView_->viewport()->height();
 
- 	foreach ( Boid *boid, boids )
-	{
-		QPointF v1 = moveWeight_ * moveTowardsCentre( boid, boids );
-		QPointF v2 = avoidWeight_ * avoidObjects( boid, boids );
-		QPointF v3 = matchWeight_ * matchVelocity( boid, boids );
-
-		QPointF v4 = avoidWeight_ * avoidOtherFlock( boid, boids2 );
-
-		boid->setVelocity( (boid->velocity() + v1 + v2 + v3 + v4 ) );
-		boundBoid( boid, xmin, xmax, ymin, ymax );
-
-		boid->limitVelocity();
-
-		boid->setPos( boid->pos() + boid->velocity() );
-		boid->setMsSinceStart( msSinceStart_ );
-		
-		boid->addToTrail( boid->x(), boid->y() );
-	}
-
- 	foreach ( Boid *boid, boids2 )
-	{
-		QPointF v1 = moveWeight_ * moveTowardsCentre( boid, boids2 );
-		QPointF v2 = avoidWeight_ * avoidObjects( boid, boids2 );
-		QPointF v3 = matchWeight_ * matchVelocity( boid, boids2 );
-
-		QPointF v4 = avoidWeight_ * avoidOtherFlock( boid, boids );
-		boid->setVelocity( (boid->velocity() + v1 + v2 + v3 + v4 ) );
-		boundBoid( boid, xmin, xmax, ymin, ymax );
-
-		boid->limitVelocity();
-
-		boid->setPos( boid->pos() + boid->velocity() );
-		boid->setMsSinceStart( msSinceStart_+200 );
-		
-		boid->addToTrail( boid->x(), boid->y() );
-	}
+    // TODO: obviously refactor into method...
+    updateFlock1(xmin, xmax, ymin, ymax);
+    updateFlock2(xmin, xmax, ymin, ymax);
 
 	landscapeScene_->update();
 }
+
+void MainWindow::updateFlock1(int xmin, int xmax, int ymin, int ymax)
+{
+ 	foreach ( Boid *boid, flock1 )
+	{
+		QPointF v1 = moveWeight_ * moveTowardsCentre( boid, flock1 );
+		QPointF v2 = avoidWeight_ * avoidObjects( boid, flock1 );
+		QPointF v3 = matchWeight_ * matchVelocity( boid, flock1 );
+
+		QPointF v4 = avoidWeight_ * avoidOtherFlock( boid, flock2 );
+
+		boid->setVelocity( (boid->velocity() + v1 + v2 + v3 + v4 ) );
+		boundBoid( boid, xmin, xmax, ymin, ymax );
+
+		boid->limitVelocity();
+
+		boid->setPos( boid->pos() + boid->velocity() );
+		boid->setMsSinceStart( ticksSinceStart_ );
+		
+		boid->addToTrail( boid->x(), boid->y() );
+	}
+}
+
+void MainWindow::updateFlock2(int xmin, int xmax, int ymin, int ymax)
+{
+ 	foreach ( Boid *boid, flock2 )
+	{
+		QPointF v1 = moveWeight_ * moveTowardsCentre( boid, flock2 );
+		QPointF v2 = avoidWeight_ * avoidObjects( boid, flock2 );
+		QPointF v3 = matchWeight_ * matchVelocity( boid, flock2 );
+
+		QPointF v4 = avoidWeight_ * avoidOtherFlock( boid, flock1 );
+
+		boid->setVelocity( (boid->velocity() + v1 + v2 + v3 + v4 ) );
+		boundBoid( boid, xmin, xmax, ymin, ymax );
+
+		boid->limitVelocity();
+
+		boid->setPos( boid->pos() + boid->velocity() );
+		boid->setMsSinceStart( ticksSinceStart_+200 );
+		
+		boid->addToTrail( boid->x(), boid->y() );
+	}
+}
+
 
 /**
  * Algorithm based on the pseudocode at:
@@ -297,25 +325,25 @@ void MainWindow::addBoid()
 {
 	QPointF centre( 0, 0 );
 
-	foreach ( Boid *boid, boids )
+	foreach ( Boid *boid, flock1 )
 	{
 		centre += boid->pos();
 	}
-	centre /= ( boids.size() );
+	centre /= ( flock1.size() );
 
-	Boid *newBoid = new Boid( boids.size(), centre.x(), centre.y() );
-	boids.push_back( newBoid );
+	Boid *newBoid = new Boid( flock1.size(), centre.x(), centre.y() );
+	flock1.push_back( newBoid );
 	landscapeScene_->addItem( newBoid );
 }
 
 void MainWindow::removeBoid(  )
 {
-	int flockSize = boids.size();
+	int flockSize = flock1.size();
 	if ( flockSize > 2 ) {
-		Boid *boid = boids.at( 0 );
+		Boid *boid = flock1.at( 0 );
 		landscapeScene_->removeItem( boid );
-		boids.remove( 0 );
-		boids.resize( flockSize - 1 );
+		flock1.remove( 0 );
+		flock1.resize( flockSize - 1 );
 		delete boid;
 	}
 }
@@ -324,25 +352,25 @@ void MainWindow::addBoid2()
 {
 	QPointF centre( 0, 0 );
 
-	foreach ( Boid *boid, boids2 )
+	foreach ( Boid *boid, flock2 )
 	{
 		centre += boid->pos();
 	}
-	centre /= ( boids2.size() );
+	centre /= ( flock2.size() );
 
-	Boid *newBoid = new Boid( boids2.size(), centre.x(), centre.y() );
-	boids2.push_back( newBoid );
+	Boid *newBoid = new Boid( flock2.size(), centre.x(), centre.y() );
+	flock2.push_back( newBoid );
 	landscapeScene_->addItem( newBoid );
 }
 
 void MainWindow::removeBoid2(  )
 {
-	int flockSize = boids2.size();
+	int flockSize = flock2.size();
 	if ( flockSize > 2 ) {
-		Boid *boid = boids2.at( 0 );
+		Boid *boid = flock2.at( 0 );
 		landscapeScene_->removeItem( boid );
-		boids2.remove( 0 );
-		boids2.resize( flockSize - 1 );
+		flock2.remove( 0 );
+		flock2.resize( flockSize - 1 );
 		delete boid;
 	}
 }
@@ -382,23 +410,23 @@ void MainWindow::toggleMatch()
 
 void MainWindow::toggleTails()
 {
-	if ( bTails_ == false ) {
-		bTails_ = true;
-		foreach( Boid *boid, boids )
+	if ( showTails == false ) {
+		showTails = true;
+		foreach( Boid *boid, flock1 )
 		{
 			boid->setTail( true );
 		}
-		foreach( Boid *boid, boids2 )
+		foreach( Boid *boid, flock2 )
 		{
 			boid->setTail( true );
 		}
-	} else if ( bTails_ == true ) {
-		bTails_ = false;
-		foreach( Boid *boid, boids )
+	} else if ( showTails == true ) {
+		showTails = false;
+		foreach( Boid *boid, flock1 )
 		{
 			boid->setTail( false );
 		}
-		foreach( Boid *boid, boids2 )
+		foreach( Boid *boid, flock2 )
 		{
 			boid->setTail( false );
 		}
