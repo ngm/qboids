@@ -97,13 +97,12 @@ void MainWindow::createMenus()
 
 void MainWindow::initialiseBoids()
 {
-    // TODO: refactor!
-    initialiseFlock1();
-    initialiseFlock2();
+    initialiseFlock(flock1);
+    initialiseFlock(flock2);
 }
 
 
-void MainWindow::initialiseFlock1()
+void MainWindow::initialiseFlock(QVector<Boid*> &flock)
 {
     for ( int boidCount = 0; boidCount < INITIAL_NUM_BOIDS; boidCount++ ) 
     {
@@ -111,21 +110,7 @@ void MainWindow::initialiseFlock1()
         int y = landscapeView_->getRandomY();
 
         Boid *boid = new Boid( boidCount, x, y );
-        flock1.push_back( boid );
-        landscapeScene_->addItem( boid );
-    }
-}
-
-
-void MainWindow::initialiseFlock2()
-{
-    for ( int boidCount = 0; boidCount < INITIAL_NUM_BOIDS; boidCount++ ) 
-    {
-        int x = landscapeView_->getRandomX();
-        int y = landscapeView_->getRandomY();
-
-        Boid *boid = new Boid( boidCount, x, y );
-        flock2.push_back( boid );
+        flock.push_back( boid );
         landscapeScene_->addItem( boid );
     }
 }

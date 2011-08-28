@@ -65,6 +65,7 @@ private:
 	LandscapeScene *landscapeScene_;
 
 	void initialiseBoids();
+	void initialiseFlock(QVector<Boid*> &flock);
     void setupLandscape();
     void setupTime();
     void updateFlock1(int xmin, int xmax, int ymin, int ymax);
