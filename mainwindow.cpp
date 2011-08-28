@@ -18,6 +18,11 @@
 #include <math.h>
 
 #include "mainwindow.hpp"
+#include "boid.hpp"
+#include "flock.hpp"
+#include "landscape.hpp"
+#include "landscapescene.hpp"
+
 
 int INITIAL_NUM_BOIDS = 4;
 
@@ -67,6 +72,7 @@ void MainWindow::setupTime()
 MainWindow::~MainWindow()
 {}
 
+
 void MainWindow::createActions()
 {
     QSettings settings( "NoodleSoft", "qboids" );
@@ -97,22 +103,10 @@ void MainWindow::createMenus()
 
 void MainWindow::initialiseBoids()
 {
-    initialiseFlock(flock1);
-    initialiseFlock(flock2);
-}
-
-
-void MainWindow::initialiseFlock(QVector<Boid*> &flock)
-{
-    for ( int boidCount = 0; boidCount < INITIAL_NUM_BOIDS; boidCount++ ) 
-    {
-        int x = landscapeView_->getRandomX();
-        int y = landscapeView_->getRandomY();
-
-        Boid *boid = new Boid( boidCount, x, y );
-        flock.push_back( boid );
-        landscapeScene_->addItem( boid );
-    }
+    flock1 = new Flock(landscapeView_, landscapeScene_);
+    flock2 = new Flock(landscapeView_, landscapeScene_);
+    flock1->createBoids(INITIAL_NUM_BOIDS);
+    flock2->createBoids(INITIAL_NUM_BOIDS);
 }
 
 
@@ -128,16 +122,13 @@ void MainWindow::updateBoids()
 }
 
 
-void MainWindow::updateFlock(
-        QVector<Boid*> &flock, QVector<Boid*> &flockToAvoid,
-        int ticksOffset)
+void MainWindow::updateFlock(Flock *flock, Flock *flockToAvoid, int ticksOffset)
 {
-    foreach ( Boid *boid, flock )
+    foreach ( Boid *boid, flock->getBoids() )
     {
         QPointF v1 = moveWeight_ * moveTowardsCentre( boid, flock );
         QPointF v2 = avoidWeight_ * avoidObjects( boid, flock );
         QPointF v3 = matchWeight_ * matchVelocity( boid, flock );
-
         QPointF v4 = avoidWeight_ * avoidOtherFlock( boid, flockToAvoid );
 
         boid->setVelocity( (boid->velocity() + v1 + v2 + v3 + v4 ) );
@@ -157,18 +148,18 @@ void MainWindow::updateFlock(
  * Algorithm based on the pseudocode at:
  * http://www.vergenet.net/~conrad/boids/pseudocode.html
  */
-QPointF MainWindow::moveTowardsCentre( Boid *thisBoid, QVector<Boid*> flock )
+QPointF MainWindow::moveTowardsCentre( Boid *thisBoid, Flock *flock )
 {
     QPointF flockCentre( 0, 0 );
 
-    foreach ( Boid *boid, flock )
+    foreach ( Boid *boid, flock->getBoids() )
     {
         if ( boid != thisBoid )
         {
             flockCentre += boid->pos();
         }
     }
-    flockCentre /= ( flock.size() - 1 );
+    flockCentre /= ( flock->numberOfBoids() - 1 );
 
     return ( flockCentre - thisBoid->pos() ) / 100;
 }
@@ -177,13 +168,13 @@ QPointF MainWindow::moveTowardsCentre( Boid *thisBoid, QVector<Boid*> flock )
  * Algorithm based on the pseudocode at:
  * http://www.vergenet.net/~conrad/boids/pseudocode.html
  */
-QPointF MainWindow::avoidObjects( Boid *thisBoid, QVector<Boid*> flock )
+QPointF MainWindow::avoidObjects( Boid *thisBoid, Flock *flock )
 {
     QPointF avoidVec( 0, 0 );
 
     Boid *boid;
 
-    foreach ( boid, flock )
+    foreach ( boid, flock->getBoids() )
     {
         if ( boid != thisBoid )
         {
@@ -196,14 +187,14 @@ QPointF MainWindow::avoidObjects( Boid *thisBoid, QVector<Boid*> flock )
     return avoidVec;
 }
 
-QPointF MainWindow::avoidOtherFlock( Boid *thisBoid, QVector<Boid*> flock )
+QPointF MainWindow::avoidOtherFlock(Boid *thisBoid, Flock *flock)
 {
     QPointF avoidVec( 0, 0 );
 
     Boid *boid;
     float xDiff, yDiff, magnitude;
 
-    foreach ( boid, flock )
+    foreach ( boid, flock->getBoids() )
     {
         if ( boid != thisBoid )
         {
@@ -224,20 +215,20 @@ QPointF MainWindow::avoidOtherFlock( Boid *thisBoid, QVector<Boid*> flock )
  * Algorithm based on the pseudocode at:
  * http://www.vergenet.net/~conrad/boids/pseudocode.html
  */
-QPointF MainWindow::matchVelocity( Boid *thisBoid, QVector<Boid*> flock )
+QPointF MainWindow::matchVelocity(Boid *thisBoid, Flock *flock)
 {
-    QPointF averageVel( 0, 0 );
+    QPointF averageVel(0, 0);
 
     Boid *boid;
-    foreach( boid, flock )
+    foreach(boid, flock->getBoids())
     {
-        if ( boid != thisBoid )
+        if (boid != thisBoid)
         {
             averageVel += boid->velocity();
         }
     }
 
-    averageVel /= ( flock.size() - 1 );
+    averageVel /= ( flock->numberOfBoids() - 1 );
 
     return ( averageVel - thisBoid->velocity() ) / 8;
 }
@@ -294,54 +285,40 @@ void MainWindow::addBoid()
 {
     QPointF centre( 0, 0 );
 
-    foreach ( Boid *boid, flock1 )
+    foreach (Boid *boid, flock1->getBoids())
     {
         centre += boid->pos();
     }
-    centre /= ( flock1.size() );
+    centre /= (flock1->numberOfBoids());
 
-    Boid *newBoid = new Boid( flock1.size(), centre.x(), centre.y() );
-    flock1.push_back( newBoid );
-    landscapeScene_->addItem( newBoid );
+    Boid *newBoid = new Boid(flock1->numberOfBoids(), centre.x(), centre.y());
+    flock1->addBoid(newBoid);
+    landscapeScene_->addItem(newBoid);
 }
 
-void MainWindow::removeBoid(  )
+void MainWindow::removeBoid()
 {
-    int flockSize = flock1.size();
-    if ( flockSize > 2 ) {
-        Boid *boid = flock1.at( 0 );
-        landscapeScene_->removeItem( boid );
-        flock1.remove( 0 );
-        flock1.resize( flockSize - 1 );
-        delete boid;
-    }
+    flock1->removeBoid();
 }
 
 void MainWindow::addBoid2()
 {
     QPointF centre( 0, 0 );
 
-    foreach ( Boid *boid, flock2 )
+    foreach ( Boid *boid, flock2->getBoids() )
     {
         centre += boid->pos();
     }
-    centre /= ( flock2.size() );
+    centre /= ( flock2->numberOfBoids() );
 
-    Boid *newBoid = new Boid( flock2.size(), centre.x(), centre.y() );
-    flock2.push_back( newBoid );
+    Boid *newBoid = new Boid(flock2->numberOfBoids(), centre.x(), centre.y() );
+    flock2->addBoid(newBoid);
     landscapeScene_->addItem( newBoid );
 }
 
-void MainWindow::removeBoid2(  )
+void MainWindow::removeBoid2()
 {
-    int flockSize = flock2.size();
-    if ( flockSize > 2 ) {
-        Boid *boid = flock2.at( 0 );
-        landscapeScene_->removeItem( boid );
-        flock2.remove( 0 );
-        flock2.resize( flockSize - 1 );
-        delete boid;
-    }
+    flock2->removeBoid();
 }
 
 
@@ -382,11 +359,11 @@ void MainWindow::toggleTails()
     if ( showTails_ == false ) 
     {
         showTails_ = true;
-        foreach( Boid *boid, flock1 )
+        foreach( Boid *boid, flock1->getBoids() )
         {
             boid->setTail( true );
         }
-        foreach( Boid *boid, flock2 )
+        foreach( Boid *boid, flock2->getBoids() )
         {
             boid->setTail( true );
         }
@@ -394,11 +371,11 @@ void MainWindow::toggleTails()
     else if ( showTails_ == true ) 
     {
         showTails_ = false;
-        foreach( Boid *boid, flock1 )
+        foreach( Boid *boid, flock1->getBoids() )
         {
             boid->setTail( false );
         }
-        foreach( Boid *boid, flock2 )
+        foreach( Boid *boid, flock2->getBoids() )
         {
             boid->setTail( false );
         }
@@ -416,83 +393,4 @@ float MainWindow::distanceBetween( Boid* boid1, Boid* boid2 )
     return magnitude;
 }
 
-
-
-/**
- * LandscapeScene.
- */
-LandscapeScene::LandscapeScene( MainWindow *mainWin, QWidget *parent )
-    : QGraphicsScene( parent )
-{
-    mainWin_ = mainWin;
-    target_.setX( 0.0 );
-    target_.setY( 0.0 );
-}
-
-void LandscapeScene::mousePressEvent( QGraphicsSceneMouseEvent *event )
-{
-    target_ = event->scenePos();
-    if ( event->button() == Qt::LeftButton )
-        mainWin_->setTargetWeight( 1 );
-    if ( event->button() == Qt::RightButton )
-        mainWin_->setTargetWeight( -1 );
-
-}
-
-void LandscapeScene::mouseMoveEvent( QGraphicsSceneMouseEvent *event )
-
-{
-    if ( event->buttons() == Qt::LeftButton ) {
-        mainWin_->setTargetWeight( 1 );
-        target_ = event->scenePos();
-    }
-    if ( event->buttons() == Qt::RightButton ) {
-        mainWin_->setTargetWeight( -1 );
-        target_ = event->scenePos();
-    }
-}
-
-void LandscapeScene::mouseReleaseEvent( QGraphicsSceneMouseEvent *event )
-{
-    target_.setX( 0.0 );
-    target_.setY( 0.0 );
-}
-
-void LandscapeScene::keyPressEvent ( QKeyEvent * keyEvent )
-{
-    switch ( keyEvent->key() )
-    {
-    case Qt::Key_S:
-        mainWin_->toggleScatter();
-        break;
-    case Qt::Key_A:
-        mainWin_->toggleAvoid();
-        break;
-    case Qt::Key_M:
-        mainWin_->toggleMatch();
-        break;
-    case Qt::Key_Up:
-        mainWin_->addBoid();
-        break;
-    case Qt::Key_Down:
-        mainWin_->removeBoid();
-        break;
-    case Qt::Key_Right:
-        mainWin_->addBoid2();
-        break;
-    case Qt::Key_Left:
-        mainWin_->removeBoid2();
-        break;
-    case Qt::Key_T:
-        mainWin_->toggleTails();
-        break;
-    }
-
-}
-
-
-QPointF LandscapeScene::target() const
-{
-    return target_;
-}
 

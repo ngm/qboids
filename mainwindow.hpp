@@ -1,8 +1,5 @@
 #include <QMainWindow>
 
-#include "landscape.hpp"
-#include "boid.hpp"
-
 #include <QVector>
 #include <QPointF>
 #include <QGraphicsScene>
@@ -13,23 +10,11 @@ class QAction;
 class QGraphicsSceneMouseEvent;
 class QKeyEvent;
 class MainWindow;
+class Boid;
+class Flock;
+class Landscape;
+class LandscapeScene;
 
-class LandscapeScene: public QGraphicsScene {
-public:
-    LandscapeScene( MainWindow *mainWin, QWidget *parent = 0 );
-
-    QPointF target() const;
-
-protected:
-    void mousePressEvent( QGraphicsSceneMouseEvent *event );
-    void mouseReleaseEvent( QGraphicsSceneMouseEvent *event );
-    void mouseMoveEvent( QGraphicsSceneMouseEvent *event );
-    void keyPressEvent ( QKeyEvent * keyEvent );
-
-private:
-    QPointF target_;
-    MainWindow *mainWin_;
-};
 
 class MainWindow : public QMainWindow {
 Q_OBJECT
@@ -50,8 +35,8 @@ public:
     void removeBoid2( );
     void toggleTails();
 
-    QVector<Boid*> flock1;
-    QVector<Boid*> flock2;
+    Flock *flock1;
+    Flock *flock2;
 
 public slots:
     void updateBoids();
@@ -65,20 +50,18 @@ private:
     LandscapeScene *landscapeScene_;
 
     void initialiseBoids();
-    void initialiseFlock(QVector<Boid*> &flock);
+    void initialiseFlock(Flock *flock);
     void setupLandscape();
     void setupTime();
-    void updateFlock(
-        QVector<Boid*> &flock, QVector<Boid*> &flockToAvoid,
-        int ticksOffset);
+    void updateFlock(Flock *flock, Flock *flockToAvoid, int ticksOffset);
     
     void boundBoid(Boid *boid);
-    QPointF moveTowardsCentre( Boid *boid, QVector<Boid*> flock );
-    QPointF avoidObjects( Boid *boid, QVector<Boid*> );
-    QPointF avoidOtherFlock( Boid *boid, QVector<Boid*> );
-    QPointF matchVelocity( Boid *boid, QVector<Boid*> );
+    QPointF moveTowardsCentre(Boid *boid, Flock *flock);
+    QPointF avoidObjects(Boid *boid, Flock *flock);
+    QPointF avoidOtherFlock(Boid *boid, Flock *flock);
+    QPointF matchVelocity( Boid *boid, Flock *flock);
 
-    float distanceBetween( Boid *boid1, Boid *boid2 );
+    float distanceBetween(Boid *boid1, Boid *boid2);
 
     QTimer *timer_;
 
@@ -96,6 +79,4 @@ private:
     int targetWeight_;
 
     int ticksSinceStart_;
-
-    
 };
