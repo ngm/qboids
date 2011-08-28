@@ -69,11 +69,10 @@ private:
     void setupLandscape();
     void setupTime();
     void updateFlock(
-        int xmin, int xmax, int ymin, int ymax,
         QVector<Boid*> &flock, QVector<Boid*> &flockToAvoid,
         int ticksOffset);
     
-    void boundBoid( Boid *boid, int xmin, int xmax, int ymin, int ymax );
+    void boundBoid(Boid *boid);
     QPointF moveTowardsCentre( Boid *boid, QVector<Boid*> flock );
     QPointF avoidObjects( Boid *boid, QVector<Boid*> );
     QPointF avoidOtherFlock( Boid *boid, QVector<Boid*> );

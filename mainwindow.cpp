@@ -120,20 +120,15 @@ void MainWindow::updateBoids()
 {
     ticksSinceStart_++;
 
-    int xmin = 0;
-    int xmax = landscapeView_->viewport()->width();
-    int ymin = 0;
-    int ymax = landscapeView_->viewport()->height();
-
     // TODO: obviously refactor into method...
-    updateFlock(xmin, xmax, ymin, ymax, flock1, flock2, 0);
-    updateFlock(xmin, xmax, ymin, ymax, flock2, flock1, 200);
+    updateFlock(flock1, flock2, 0);
+    updateFlock(flock2, flock1, 200);
 
     landscapeScene_->update();
 }
 
+
 void MainWindow::updateFlock(
-        int xmin, int xmax, int ymin, int ymax,
         QVector<Boid*> &flock, QVector<Boid*> &flockToAvoid,
         int ticksOffset)
 {
@@ -146,7 +141,7 @@ void MainWindow::updateFlock(
         QPointF v4 = avoidWeight_ * avoidOtherFlock( boid, flockToAvoid );
 
         boid->setVelocity( (boid->velocity() + v1 + v2 + v3 + v4 ) );
-        boundBoid( boid, xmin, xmax, ymin, ymax );
+        boundBoid(boid);
 
         boid->limitVelocity();
 
@@ -251,9 +246,12 @@ QPointF MainWindow::matchVelocity( Boid *thisBoid, QVector<Boid*> flock )
  * Algorithm based on the pseudocode at:
  * http://www.vergenet.net/~conrad/boids/pseudocode.html
  */
-void MainWindow::boundBoid( Boid *boid, int xmin, int xmax,
-                int ymin, int ymax )
+void MainWindow::boundBoid(Boid *boid)
 {
+    int xmin = 0;
+    int xmax = landscapeView_->viewport()->width();
+    int ymin = 0;
+    int ymax = landscapeView_->viewport()->height();
 
     if ( !landscapeScene_->target().isNull() )
         boid->setVelocity( boid->velocity() + targetWeight_*( landscapeScene_->target() - boid->pos() )/100 );
