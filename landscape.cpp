@@ -24,6 +24,12 @@ int Landscape::getRandomY()
     return height()/2 + qrand()%20-20;
 }
 
+
+QPointF Landscape::getRandomPoint()
+{
+    return QPointF(getRandomX(), getRandomY());
+}
+
 // void Landspace::drawBackground( QPainter * painter, const QRectF & rect )
 // {
 

@@ -6,7 +6,7 @@
 
 class Boid : public QGraphicsItem {
 public:
-	Boid( int id, int xpos, int ypos );
+	Boid(int id, QPointF position);
 	~Boid();
 
 	QPointF velocity() const;

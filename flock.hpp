@@ -17,6 +17,7 @@ class Flock {
         ~Flock();
 
         void createBoids(int numBoids);
+        Boid* spawnBoid();
 
         QVector<Boid*> getBoids();
         int numberOfBoids();

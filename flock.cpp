@@ -33,12 +33,9 @@ Flock::~Flock()
 
 void Flock::createBoids(int numBoids)
 {
-    for ( int boidCount = 0; boidCount < numBoids; boidCount++ ) 
+    for (int boidCount = 0; boidCount < numBoids; boidCount++) 
     {
-        int x = landscapeView_->getRandomX();
-        int y = landscapeView_->getRandomY();
-
-        Boid *boid = new Boid( boidCount, x, y );
+        Boid *boid = new Boid( boidCount, landscapeView_->getRandomPoint());
         boids.push_back( boid );
         landscapeScene_->addItem( boid );
     }
@@ -117,6 +114,16 @@ QPointF Flock::centreOfFlock()
 }
 
 
+Boid* Flock::spawnBoid()
+{
+    QPointF centre = centreOfFlock();
+    Boid *boid = new Boid(numberOfBoids(), centreOfFlock());
+    boids.push_back(boid);
+
+    return boid;
+}
+
+
 /**
  * Algorithm based on the pseudocode at:
  * http://www.vergenet.net/~conrad/boids/pseudocode.html
@@ -126,7 +133,6 @@ QPointF Flock::avoidOtherBoids(Boid *thisBoid)
     QPointF avoidVec( 0, 0 );
 
     Boid *boid;
-
     foreach (boid, boids)
     {
         if (boid != thisBoid)

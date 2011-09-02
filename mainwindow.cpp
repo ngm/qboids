@@ -107,12 +107,12 @@ void MainWindow::createMenus()
 
 void MainWindow::initialiseBoids()
 {
-    flock2 = new Flock(
+    flock1 = new Flock(
                 landscapeView_, landscapeScene_,
                 moveWeight_, matchWeight_,
                 avoidWeight_, targetWeight_,
                 this);
-    flock1 = new Flock(
+    flock2 = new Flock(
                 landscapeView_, landscapeScene_,
                 moveWeight_, matchWeight_,
                 avoidWeight_, targetWeight_,
@@ -156,38 +156,23 @@ void MainWindow::setTargetWeight( int newWeight )
 
 void MainWindow::addBoid()
 {
-    QPointF centre( 0, 0 );
-
-    foreach (Boid *boid, flock1->getBoids())
-    {
-        centre += boid->pos();
-    }
-    centre /= (flock1->numberOfBoids());
-
-    Boid *newBoid = new Boid(flock1->numberOfBoids(), centre.x(), centre.y());
-    flock1->addBoid(newBoid);
+    Boid *newBoid = flock1->spawnBoid();
     landscapeScene_->addItem(newBoid);
 }
+
+
+void MainWindow::addBoid2()
+{
+    Boid *newBoid = flock1->spawnBoid();
+    landscapeScene_->addItem(newBoid);
+}
+
 
 void MainWindow::removeBoid()
 {
     flock1->removeBoid();
 }
 
-void MainWindow::addBoid2()
-{
-    QPointF centre( 0, 0 );
-
-    foreach ( Boid *boid, flock2->getBoids() )
-    {
-        centre += boid->pos();
-    }
-    centre /= ( flock2->numberOfBoids() );
-
-    Boid *newBoid = new Boid(flock2->numberOfBoids(), centre.x(), centre.y() );
-    flock2->addBoid(newBoid);
-    landscapeScene_->addItem( newBoid );
-}
 
 void MainWindow::removeBoid2()
 {

@@ -14,13 +14,12 @@
 
 #define NUM_TRAIL_POINTS 250
 
-Boid::Boid( int id, int posx, int posy )
+Boid::Boid(int id, QPointF position)
 {
 	id_ = id;
 	count_ = 0;
-	QPointF point( posx, posy );
-	trail_.fill( point, NUM_TRAIL_POINTS );
-	setPos( posx, posy );
+	trail_.fill(position, NUM_TRAIL_POINTS);
+	setPos(position.x(), position.y());
 	velocity_ = QPointF( 0.1, 0.1 );
 	tailOn_ = true;
 }
@@ -40,15 +39,14 @@ void Boid::setVelocity( QPointF velocity )
 
 QRectF Boid::boundingRect() const
 {
-	return QRectF( -1, -1, //width/2, -length/2,
-		       2, 2 );//length, width );
+	return QRectF( -1, -1, 2, 2 );
 }
 
 void Boid::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 		 QWidget *widget)
 {
 	Q_UNUSED( option ); Q_UNUSED( widget );
-//	painter->setRenderHints( QPainter::Antialiasing );
+	painter->setRenderHints( QPainter::Antialiasing );
 
 	QPen pen;
 	
