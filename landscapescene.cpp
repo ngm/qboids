@@ -20,25 +20,24 @@ LandscapeScene::LandscapeScene( MainWindow *mainWin, QWidget *parent )
 
 void LandscapeScene::mousePressEvent( QGraphicsSceneMouseEvent *event )
 {
-    target_ = event->scenePos();
-    if ( event->button() == Qt::LeftButton )
-        mainWin_->setTargetWeight( 1 );
-    if ( event->button() == Qt::RightButton )
-        mainWin_->setTargetWeight( -1 );
-
+    //target_ = event->scenePos();
+    //if ( event->button() == Qt::LeftButton )
+        //mainWin_->setTargetWeight( 1 );
+    //if ( event->button() == Qt::RightButton )
+        //mainWin_->setTargetWeight( -1 );
 }
 
 void LandscapeScene::mouseMoveEvent( QGraphicsSceneMouseEvent *event )
 
 {
-    if ( event->buttons() == Qt::LeftButton ) {
-        mainWin_->setTargetWeight( 1 );
-        target_ = event->scenePos();
-    }
-    if ( event->buttons() == Qt::RightButton ) {
-        mainWin_->setTargetWeight( -1 );
-        target_ = event->scenePos();
-    }
+    //if ( event->buttons() == Qt::LeftButton ) {
+        //mainWin_->setTargetWeight( 1 );
+        //target_ = event->scenePos();
+    //}
+    //if ( event->buttons() == Qt::RightButton ) {
+        //mainWin_->setTargetWeight( -1 );
+        //target_ = event->scenePos();
+    //}
 }
 
 void LandscapeScene::mouseReleaseEvent( QGraphicsSceneMouseEvent *event )

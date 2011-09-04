@@ -3,16 +3,18 @@
 #include "flock.hpp"
 #include "landscape.hpp"
 #include "landscapescene.hpp"
-#include "mainwindow.hpp"
+#include "simulation.hpp"
 
 #include <math.h>
+
+#define DISTANCE_AVOID 20
 
 
 Flock::Flock(
     Landscape *landscapeView, LandscapeScene *landscapeScene,
     int moveWeight, int matchWeight,
     int avoidWeight, int targetWeight,
-    MainWindow *mainWin
+    Simulation *sim
 )
 {
     landscapeView_ = landscapeView;
@@ -23,7 +25,7 @@ Flock::Flock(
     avoidWeight_ = avoidWeight;
     targetWeight = targetWeight;
 
-    mainWin_ = mainWin;
+    sim_ = sim;
 }   
 
 
@@ -45,6 +47,16 @@ void Flock::createBoids(int numBoids)
 void Flock::addBoid(Boid *newBoid)
 {
     boids.push_back(newBoid);
+}
+
+
+Boid* Flock::spawnBoid()
+{
+    QPointF centre = centreOfFlock();
+    Boid *boid = new Boid(numberOfBoids(), centreOfFlock());
+    addBoid(boid);
+
+    return boid;
 }
 
 
@@ -88,7 +100,7 @@ void Flock::updateBoids(Flock *flockToAvoid, int ticksOffset)
         boid->limitVelocity();
 
         boid->setPos( boid->pos() + boid->velocity() );
-        boid->setMsSinceStart( mainWin_->ticksSinceStart() + ticksOffset);
+        boid->setMsSinceStart( sim_->ticksSinceStart() + ticksOffset);
         
         boid->addToTrail( boid->x(), boid->y() );
     }
@@ -114,16 +126,6 @@ QPointF Flock::centreOfFlock()
 }
 
 
-Boid* Flock::spawnBoid()
-{
-    QPointF centre = centreOfFlock();
-    Boid *boid = new Boid(numberOfBoids(), centreOfFlock());
-    boids.push_back(boid);
-
-    return boid;
-}
-
-
 /**
  * Algorithm based on the pseudocode at:
  * http://www.vergenet.net/~conrad/boids/pseudocode.html
@@ -137,7 +139,7 @@ QPointF Flock::avoidOtherBoids(Boid *thisBoid)
     {
         if (boid != thisBoid)
         {
-            if (distanceBetween(boid, thisBoid) < 20 ) 
+            if (distanceBetween(boid, thisBoid) < DISTANCE_AVOID ) 
             {
                 avoidVec -= (boid->pos() - thisBoid->pos());
             }

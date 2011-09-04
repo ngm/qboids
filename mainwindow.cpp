@@ -25,16 +25,12 @@
 #include "flock.hpp"
 #include "landscape.hpp"
 #include "landscapescene.hpp"
+#include "simulation.hpp"
 
 
 int INITIAL_NUM_BOIDS = 4;
 
 MainWindow::MainWindow()
-    : showTails_( true ),
-      moveWeight_( 1 ),
-      matchWeight_( 1 ),
-      avoidWeight_( 1 ),
-      targetWeight_( 1 )
 {
     qsrand( 20 );
     setGeometry( 0, 0, 500, 300 );
@@ -43,10 +39,12 @@ MainWindow::MainWindow()
     createActions();
     createMenus();
 
-    initialiseBoids();
-
-    setupTime();
+    createSimulation();
 }
+
+
+MainWindow::~MainWindow()
+{}
 
 void MainWindow::setupLandscape()
 {
@@ -65,16 +63,6 @@ void MainWindow::setupLandscape()
 }
 
 
-void MainWindow::setupTime()
-{
-    timer_ = new QTimer( this );
-    connect( timer_, SIGNAL(timeout()), this, SLOT(updateBoids()) );
-    timer_->start( 10 );
-    ticksSinceStart_ = 0;
-}
-
-MainWindow::~MainWindow()
-{}
 
 
 void MainWindow::createActions()
@@ -105,166 +93,68 @@ void MainWindow::createMenus()
 }
 
 
-void MainWindow::initialiseBoids()
+void MainWindow::createSimulation()
 {
-    flock1 = new Flock(
-                landscapeView_, landscapeScene_,
-                moveWeight_, matchWeight_,
-                avoidWeight_, targetWeight_,
-                this);
-    flock2 = new Flock(
-                landscapeView_, landscapeScene_,
-                moveWeight_, matchWeight_,
-                avoidWeight_, targetWeight_,
-                this);
-
-    flock1->createBoids(INITIAL_NUM_BOIDS);
-    flock2->createBoids(INITIAL_NUM_BOIDS);
+    simulation_ = new Simulation(
+            INITIAL_NUM_BOIDS,
+            landscapeView_,
+            landscapeScene_);
 }
 
-
-void MainWindow::updateBoids()
-{
-    ticksSinceStart_++;
-
-    flock1->updateBoids(flock2, 0);
-    flock2->updateBoids(flock1, 200);
-
-    landscapeScene_->update();
-}
-
-
-void MainWindow::setMoveWeight( int newWeight )
-{
-    moveWeight_ = newWeight;
-}
-
-void MainWindow::setAvoidWeight( int newWeight )
-{
-    avoidWeight_ = newWeight;
-}
-
-void MainWindow::setMatchWeight( int newWeight )
-{
-    matchWeight_ = newWeight;
-}
-
-void MainWindow::setTargetWeight( int newWeight )
-{
-    targetWeight_ = newWeight;
-}
 
 void MainWindow::addBoid()
 {
-    Boid *newBoid = flock1->spawnBoid();
-    landscapeScene_->addItem(newBoid);
+    simulation_->addBoid();
 }
 
 
 void MainWindow::addBoid2()
 {
-    Boid *newBoid = flock1->spawnBoid();
-    landscapeScene_->addItem(newBoid);
+    simulation_->addBoid2();
 }
 
 
 void MainWindow::removeBoid()
 {
-    flock1->removeBoid();
+    simulation_->removeBoid();
 }
 
 
 void MainWindow::removeBoid2()
 {
-    flock2->removeBoid();
+    simulation_->removeBoid2();
 }
 
 
 void MainWindow::togglePause()
 {
-    if ( timer_->isActive() )
-        timer_->stop();
-    else
-        timer_->start();
+    simulation_->togglePause();
 }
 
 void MainWindow::toggleScatter()
 {
-    if (moveWeight_ == 1)
-    {
-        moveWeight_ = -5;
-    }
-    else 
-    {
-        moveWeight_ = 1;
-    }
-
-    flock1->setMoveWeight(moveWeight_);
-    flock2->setMoveWeight(moveWeight_);
+    simulation_->toggleScatter();
 }
 
 void MainWindow::toggleAvoid()
 {
-    if (avoidWeight_ == 1)
-    {
-        avoidWeight_ = -1;
-    }
-    else 
-    {
-        avoidWeight_ = 1;
-    }
-
-    flock1->setAvoidWeight(avoidWeight_);
-    flock2->setAvoidWeight(avoidWeight_);
+    simulation_->toggleAvoid();
 }
 
 void MainWindow::toggleMatch()
 {
-    if (matchWeight_ == 1)
-    {
-        matchWeight_ = -1;
-    }
-    else 
-    {
-        matchWeight_ = 1;
-    }
-
-    flock1->setMatchWeight(matchWeight_);
-    flock2->setMatchWeight(matchWeight_);
+    simulation_->toggleMatch();
 }
 
 void MainWindow::toggleTails()
 {
-    if ( showTails_ == false ) 
-    {
-        showTails_ = true;
-        foreach( Boid *boid, flock1->getBoids() )
-        {
-            boid->setTail( true );
-        }
-        foreach( Boid *boid, flock2->getBoids() )
-        {
-            boid->setTail( true );
-        }
-    } 
-    else if ( showTails_ == true ) 
-    {
-        showTails_ = false;
-        foreach( Boid *boid, flock1->getBoids() )
-        {
-            boid->setTail( false );
-        }
-        foreach( Boid *boid, flock2->getBoids() )
-        {
-            boid->setTail( false );
-        }
-    }
+    simulation_->toggleTails();
 }
 
 
 int MainWindow::ticksSinceStart()
 {
-    return ticksSinceStart_;
+    return simulation_->ticksSinceStart();
 }
 
 

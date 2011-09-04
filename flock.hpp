@@ -4,7 +4,7 @@
 class Landscape;
 class LandscapeScene;
 class Boid;
-class MainWindow;
+class Simulation;
 
 class Flock {
     public:
@@ -12,7 +12,7 @@ class Flock {
             Landscape *landscapeView, LandscapeScene *landscapeScene,
             int moveWeight, int matchWeight,
             int avoidWeight, int targetWeight,
-            MainWindow *mainWin
+            Simulation *sim
         );
         ~Flock();
 
@@ -44,7 +44,7 @@ class Flock {
         QVector<Boid*> boids;
         Landscape *landscapeView_;
         LandscapeScene *landscapeScene_;
-        MainWindow *mainWin_;
+        Simulation *sim_;
 
         int moveWeight_;
         int matchWeight_;

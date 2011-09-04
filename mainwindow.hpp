@@ -10,10 +10,9 @@ class QAction;
 class QGraphicsSceneMouseEvent;
 class QKeyEvent;
 class MainWindow;
-class Boid;
-class Flock;
 class Landscape;
 class LandscapeScene;
+class Simulation;
 
 
 class MainWindow : public QMainWindow {
@@ -36,39 +35,25 @@ public:
     void toggleTails();
     int ticksSinceStart();
 
-    Flock *flock1;
-    Flock *flock2;
-
 public slots:
-    void updateBoids();
     void togglePause();
     
 private:
     void createActions();
     void createMenus();
 
+    Simulation *simulation_;
     Landscape *landscapeView_;
     LandscapeScene *landscapeScene_;
 
-    void initialiseBoids();
-    void initialiseFlock(Flock *flock);
     void setupLandscape();
-    void setupTime();
+    void createSimulation();
     
-    QTimer *timer_;
-
     QMenu *fileMenu_;
     QMenu *simMenu_;
 
     QAction *quitAct_;
     QAction *pauseAct_;
-
-    bool showTails_;
-
-    int moveWeight_;
-    int matchWeight_;
-    int avoidWeight_;
-    int targetWeight_;
 
     int ticksSinceStart_;
 };

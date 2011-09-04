@@ -9,5 +9,16 @@ DEPENDPATH += .
 INCLUDEPATH += .
 
 # Input
-HEADERS += boid.hpp flock.hpp landscape.hpp landscapescene.hpp mainwindow.hpp
-SOURCES += qboids.cpp boid.cpp flock.cpp landscapescene.cpp landscape.cpp mainwindow.cpp
+HEADERS += boid.hpp \
+           flock.hpp \ 
+           landscape.hpp \
+           landscapescene.hpp \
+           simulation.hpp \
+           mainwindow.hpp
+SOURCES += qboids.cpp \
+           boid.cpp \
+           flock.cpp \
+           landscapescene.cpp \
+           landscape.cpp \
+           simulation.cpp \
+           mainwindow.cpp
