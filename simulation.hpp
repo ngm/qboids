@@ -25,14 +25,19 @@ public:
         LandscapeScene *landscapeScene
     );
     ~Simulation();
+
+    void initialiseWeights();
     void setupTime();
     void initialiseBoids(int numBoids);
+
     void toggleScatter();
     void toggleMatch();
     void toggleAvoid();
     void toggleTails();
     void togglePause();
+        
     int ticksSinceStart();
+
     void addBoid();
     void removeBoid( );
     void addBoid2( );
@@ -48,9 +53,20 @@ private:
     bool showTails_;
 
     int moveWeight_;
+    static const int DEFAULT_MOVE_WEIGHT = 1;
+    static const int ALTERNATE_MOVE_WEIGHT = -5;
+
     int matchWeight_;
+    static const int DEFAULT_MATCH_WEIGHT = 1;
+    static const int ALTERNATE_MATCH_WEIGHT = -1;
+
     int avoidWeight_;
+    static const int DEFAULT_AVOID_WEIGHT = 1;
+    static const int ALTERNATE_AVOID_WEIGHT = -1;
+
     int targetWeight_;
+    static const int DEFAULT_TARGET_WEIGHT = 1;
+    static const int ALTERNATE_TARGET_WEIGHT = 1;
 
     int ticksSinceStart_;
 

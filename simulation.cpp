@@ -25,12 +25,8 @@ Simulation::Simulation(
     Landscape *landscapeView,
     LandscapeScene *landscapeScene
 )
-    : showTails_(true),
-      moveWeight_(1),
-      matchWeight_(1),
-      avoidWeight_(1),
-      targetWeight_(1)
 {
+    initialiseWeights();
     landscapeView_ = landscapeView;
     landscapeScene_ = landscapeScene;
     initialiseBoids(numBoids);
@@ -40,12 +36,21 @@ Simulation::Simulation(
 Simulation::~Simulation()
 {}
 
+void Simulation::initialiseWeights()
+{
+    moveWeight_ = DEFAULT_MOVE_WEIGHT;
+    matchWeight_ = DEFAULT_MATCH_WEIGHT;
+    avoidWeight_ = DEFAULT_AVOID_WEIGHT;
+    targetWeight_ = DEFAULT_TARGET_WEIGHT;
+    showTails_ = true;
+}
+
 void Simulation::setupTime()
 {
     timer_ = new QTimer();
     connect( timer_, SIGNAL(timeout()), this, SLOT(updateBoids()) );
-    timer_->start( 10 );
     ticksSinceStart_ = 0;
+    timer_->start( 10 );
 }
 
 
@@ -80,13 +85,13 @@ void Simulation::updateBoids()
 
 void Simulation::toggleScatter()
 {
-    if (moveWeight_ == 1)
+    if (moveWeight_ == DEFAULT_MOVE_WEIGHT)
     {
-        moveWeight_ = -5;
+        moveWeight_ = ALTERNATE_MOVE_WEIGHT;
     }
     else 
     {
-        moveWeight_ = 1;
+        moveWeight_ = DEFAULT_MOVE_WEIGHT;
     }
 
     flock1->setMoveWeight(moveWeight_);
@@ -96,13 +101,13 @@ void Simulation::toggleScatter()
 
 void Simulation::toggleMatch()
 {
-    if (matchWeight_ == 1)
+    if (matchWeight_ == DEFAULT_MATCH_WEIGHT)
     {
-        matchWeight_ = -1;
+        matchWeight_ = ALTERNATE_MATCH_WEIGHT;
     }
     else 
     {
-        matchWeight_ = 1;
+        matchWeight_ = DEFAULT_MATCH_WEIGHT;
     }
 
     flock1->setMatchWeight(matchWeight_);
@@ -111,13 +116,13 @@ void Simulation::toggleMatch()
 
 void Simulation::toggleAvoid()
 {
-    if (avoidWeight_ == 1)
+    if (avoidWeight_ == DEFAULT_AVOID_WEIGHT)
     {
-        avoidWeight_ = -1;
+        avoidWeight_ = ALTERNATE_AVOID_WEIGHT;
     }
     else 
     {
-        avoidWeight_ = 1;
+        avoidWeight_ = DEFAULT_AVOID_WEIGHT;
     }
 
     flock1->setAvoidWeight(avoidWeight_);
